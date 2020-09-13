@@ -97,24 +97,9 @@ namespace Bot_hw
                     Console.WriteLine($"{DateTime.Now.ToLongTimeString()} | Bot | {chatID}: coronavirus-5018466_640.jpg | Photo");
                     try
                     {
-                        //var client = new RestClient("https://api.covid19api.com/world/total");
-                        //client.Timeout = -1;
-                        //var request = new RestRequest(Method.GET);
-                        //IRestResponse response = client.Execute(request);
-                        //botReply = "Всего в мире: \n";
-                        //var o = Newtonsoft.Json.Linq.JObject.Parse(response.Content);
-                        //string confirmed = o.SelectToken("TotalConfirmed").ToString();
-                        //string deaths = o.SelectToken("TotalDeaths").ToString();
-                        //string recovered = o.SelectToken("TotalRecovered").ToString();
-                        //botReply += $"подтвержденных случаев  {confirmed}\nсмертей  {deaths}\nвыздоровело  {recovered}";
-                        //await bot.SendTextMessageAsync(chatID, botReply);
-                        //Console.WriteLine($"{DateTime.Now.ToLongTimeString()} | Bot | {chatID}: {botReply} | Text");
-
-
                         var client = new RestClient("https://covid-19-data.p.rapidapi.com/totals?format=json");
                         var request = new RestRequest(Method.GET);
                         request.AddHeader("x-rapidapi-host", "covid-19-data.p.rapidapi.com");
-                        //request.AddHeader("x-rapidapi-key", "ea329a7981msh2ab841c17cc8757p182745jsn40d831331c52"); //a
                         request.AddHeader("x-rapidapi-key", "d93af22c62msh260c18d52dc8569p147315jsn68b6d709f561"); //k
                         IRestResponse response = client.Execute(request);
 
@@ -131,7 +116,19 @@ namespace Bot_hw
                         await bot.SendTextMessageAsync(chatID, botReply);
                         Console.WriteLine($"{DateTime.Now.ToLongTimeString()} | Bot | {chatID}: {botReply} | Text");
 
-
+                        ////альтернативный источник информации о Covid 19 - без токена.
+                        //var client = new RestClient("https://api.covid19api.com/world/total");
+                        //client.Timeout = -1;
+                        //var request = new RestRequest(Method.GET);
+                        //IRestResponse response = client.Execute(request);
+                        //botReply = "Всего в мире: \n";
+                        //var o = Newtonsoft.Json.Linq.JObject.Parse(response.Content);
+                        //string confirmed = o.SelectToken("TotalConfirmed").ToString();
+                        //string deaths = o.SelectToken("TotalDeaths").ToString();
+                        //string recovered = o.SelectToken("TotalRecovered").ToString();
+                        //botReply += $"подтвержденных случаев  {confirmed}\nсмертей  {deaths}\nвыздоровело  {recovered}";
+                        //await bot.SendTextMessageAsync(chatID, botReply);
+                        //Console.WriteLine($"{DateTime.Now.ToLongTimeString()} | Bot | {chatID}: {botReply} | Text");
                     }
                     catch (Exception)
                     {
