@@ -10,12 +10,12 @@ namespace Bot_hw
     class Program
     {
         static TelegramBotClient bot;
-        static string tgDir = @"telegram_files";    //папка для хранения полученных файлов
+        static readonly string tgDir = @"telegram_files";    //папка для хранения полученных файлов
 
         static void Main(string[] args)
         {
 
-            string token = File.ReadAllText(@"token.txt");  // токен Телеграмм
+            string token = File.ReadAllText(@"token.txt");  // токен Телеграмм - в файле с исполняемым кодом программы
             if (!Directory.Exists(tgDir))
                 try
                 {
@@ -29,45 +29,46 @@ namespace Bot_hw
             bot = new TelegramBotClient(token);
             bot.OnMessage += MessageOn;
             bot.StartReceiving();
+            Console.WriteLine("Бот запущен. Для выхода нажмите любую клавишу...");
             Console.ReadKey();
         }
        /// <summary>
-       /// Получение и обработка запроса пользователя в чате в асинхронном режиме
+       /// Получает и обрабатывает запрос пользователя в чате в асинхронном режиме
        /// </summary>
        /// <param name="sender">телеграмм бот</param>
        /// <param name="e">запрос</param>       
-        private static async void MessageOn(object sender, Telegram.Bot.Args.MessageEventArgs e)
+        static async void MessageOn(object sender, Telegram.Bot.Args.MessageEventArgs e)
         {
             string text = $"{DateTime.Now.ToLongTimeString()} | {e.Message.Chat.FirstName} | {e.Message.Chat.Id}: {e.Message.Text} | {e.Message.Type}";
             Console.WriteLine(text);
             
             switch (e.Message.Type.ToString())
             {
-                case "Text":        /// обработка текстового запроса
+                case "Text":        // обработка текстового запроса
                     string messageText = e.Message.Text.ToLower();
                     ReplyOnText(messageText, e.Message.Chat.Id);
                     break;
 
-                case "Document":    /// получение файла, сохранение в директории, установленной ранее, с именем, полученным от пользователя
+                case "Document":    // получение файла, сохранение в директории, установленной ранее, с именем, полученным от пользователя
                     DownLoad(e.Message.Document.FileId, $@"{tgDir}\{e.Message.Document.FileName}");
                     await bot.SendTextMessageAsync(e.Message.Chat.Id,
                     $"Получен файл {e.Message.Document.FileName}, сохранен как {e.Message.Document.FileName}");
                     break;
 
-                case "Photo":   /// получение файла фотографии, сохранение в директории, установленной ранее, с уникальным идентификатором
+                case "Photo":   // получение файла фотографии, сохранение в директории, установленной ранее, с уникальным идентификатором
                     string namep = "photo" + Guid.NewGuid();    
                     DownLoad(e.Message.Photo[e.Message.Photo.Length - 1].FileId, $@"{tgDir}\{namep}.jpg");
                     await bot.SendTextMessageAsync(e.Message.Chat.Id,
                     $"Получен файл {@"C:\photo.jpg"}, сохранен как {namep}.jpg");
                     break;
-                case "Audio": /// получение аудио файла, сохранение в директории, установленной ранее, с уникальным идентификатором
+                case "Audio": // получение аудио файла, сохранение в директории, установленной ранее, с уникальным идентификатором
                     string namea = "audio" + Guid.NewGuid();
                     DownLoad(e.Message.Audio.FileId, $@"{tgDir}\{namea}.mp3");
                     await bot.SendTextMessageAsync(e.Message.Chat.Id,
                     $"Получен файл {e.Message.Audio.Title}, сохранен как {namea}.mp3");
                     break;
 
-                case "Video":   /// получение видео файла, сохранение в директории, установленной ранее, с именем, полученным от пользователя
+                case "Video":   // получение видео файла, сохранение в директории, установленной ранее, с именем, полученным от пользователя
                     DownLoad(e.Message.Video.FileId, $@"{tgDir}\{e.Message.Document.FileName}");
                     await bot.SendTextMessageAsync(e.Message.Chat.Id,
                     $"Получен файл {e.Message.Document.FileName}, сохранен как {e.Message.Document.FileName}");
@@ -80,11 +81,11 @@ namespace Bot_hw
 
         }
         /// <summary>
-        /// Обработка текстового запроса согласно меню
+        /// Обрабатывает текстовый запрос пользователя и отвечает на него в чат
         /// </summary>
         /// <param name="text">текст запроса</param>
         /// <param name="chatID">ID чата</param>
-        private static async void ReplyOnText(string text, long chatID)
+        static async void ReplyOnText(string text, long chatID)
         {
             string botReply;
             switch (text)
@@ -94,56 +95,50 @@ namespace Bot_hw
                                 //запрос через RapidAPI агрегатор, бесплатный режим с ограничениями по количеству запросов
                     SendPhoto("coronavirus-5018466_640.jpg", chatID);
                     Console.WriteLine($"{DateTime.Now.ToLongTimeString()} | Bot | {chatID}: coronavirus-5018466_640.jpg | Photo");
-                    //try
-                    //{   
-                    //    //var client = new RestClient("https://api.covid19api.com/world/total");
-                    //    //client.Timeout = -1;
-                    //    //var request = new RestRequest(Method.GET);
-                    //    //IRestResponse response = client.Execute(request);
-                    //    //botReply = 
-                    //    //var o = Newtonsoft.Json.Linq.JObject.Parse(response.Content);
-                    //    //botReply = o.SelectToken("TotalConfirmed").ToString();
+                    try
+                    {
+                        //var client = new RestClient("https://api.covid19api.com/world/total");
+                        //client.Timeout = -1;
+                        //var request = new RestRequest(Method.GET);
+                        //IRestResponse response = client.Execute(request);
+                        //botReply = "Всего в мире: \n";
+                        //var o = Newtonsoft.Json.Linq.JObject.Parse(response.Content);
+                        //string confirmed = o.SelectToken("TotalConfirmed").ToString();
+                        //string deaths = o.SelectToken("TotalDeaths").ToString();
+                        //string recovered = o.SelectToken("TotalRecovered").ToString();
+                        //botReply += $"подтвержденных случаев  {confirmed}\nсмертей  {deaths}\nвыздоровело  {recovered}";
+                        //await bot.SendTextMessageAsync(chatID, botReply);
+                        //Console.WriteLine($"{DateTime.Now.ToLongTimeString()} | Bot | {chatID}: {botReply} | Text");
 
 
-                    //    var client = new RestClient("https://covid-19-data.p.rapidapi.com/totals?format=json");
-                    //    var request = new RestRequest(Method.GET);
-                    //    request.AddHeader("x-rapidapi-host", "covid-19-data.p.rapidapi.com");
-                    //    //request.AddHeader("x-rapidapi-key", "ea329a7981msh2ab841c17cc8757p182745jsn40d831331c52"); //a
-                    //    request.AddHeader("x-rapidapi-key", "d93af22c62msh260c18d52dc8569p147315jsn68b6d709f561"); //k
-                    //    IRestResponse response = client.Execute(request);
+                        var client = new RestClient("https://covid-19-data.p.rapidapi.com/totals?format=json");
+                        var request = new RestRequest(Method.GET);
+                        request.AddHeader("x-rapidapi-host", "covid-19-data.p.rapidapi.com");
+                        //request.AddHeader("x-rapidapi-key", "ea329a7981msh2ab841c17cc8757p182745jsn40d831331c52"); //a
+                        request.AddHeader("x-rapidapi-key", "d93af22c62msh260c18d52dc8569p147315jsn68b6d709f561"); //k
+                        IRestResponse response = client.Execute(request);
 
-                    //    botReply = "Всего в мире: \n";
-                    //    Newtonsoft.Json.Linq.JArray o = Newtonsoft.Json.Linq.JArray.Parse(response.Content);
+                        botReply = "Всего в мире: \n";
+                        Newtonsoft.Json.Linq.JArray o = Newtonsoft.Json.Linq.JArray.Parse(response.Content);
+                        var confirmed = (string)(o[0]["confirmed"]);
+                        var recovered = (string)o[0]["recovered"];
+                        var critical = (string)o[0]["critical"];
+                        var deaths = (string)o[0]["deaths"];
+                        var lastUpdate = (string)o[0]["lastUpdate"];
+                        botReply += $"Подтвержденных случаев {confirmed}\nВыздоровeло {recovered}\nВ критическом состоянии {critical}\n" +
+                                    $"Умерло {deaths}\nИнформация обновлена {lastUpdate}";
 
-                    //    var confirmed = (string)(o[0]["confirmed"]);
-                    //    //await bot.SendTextMessageAsync(chatID,
-                    //    botReply += $"Подтверждено {confirmed} случаев\n";
-
-                    //    var recovered = (string)o[0]["recovered"];
-                    //    //await bot.SendTextMessageAsync(e.Message.Chat.Id,
-                    //    botReply += $"Выздоровление {recovered} случаев\n";
-
-                    //    var critical = (string)o[0]["critical"];
-                    //    //await bot.SendTextMessageAsync(e.Message.Chat.Id,
-                    //    botReply += $"В критическом состоянии {critical} случаев\n";
-
-                    //    var deaths = (string)o[0]["deaths"];
-                    //    //await bot.SendTextMessageAsync(e.Message.Chat.Id,
-                    //    botReply += $"Смерть {deaths} случаев\n";
-
-                    //    var lastUpdate = (string)o[0]["lastUpdate"];
-                    //    botReply += $"Обновлено {lastUpdate}";
-                    //    await bot.SendTextMessageAsync(chatID, botReply);
-                    //    Console.WriteLine($"{DateTime.Now.ToLongTimeString()} | Bot | {chatID}: {botReply} | Text");
+                        await bot.SendTextMessageAsync(chatID, botReply);
+                        Console.WriteLine($"{DateTime.Now.ToLongTimeString()} | Bot | {chatID}: {botReply} | Text");
 
 
-                    //}
-                    //catch (Exception)
-                    //{
-                    //    await bot.SendTextMessageAsync(chatID,
-                    //   $"Ошибка запроса. Covid 19 data center не отвечает.");
-                    //    Console.WriteLine($"{DateTime.Now.ToLongTimeString()} | Bot | {chatID}: Ошибка запроса. Covid 19 data center не отвечает. | Text");
-                    //}
+                    }
+                    catch (Exception)
+                    {
+                        await bot.SendTextMessageAsync(chatID,
+                       $"Ошибка запроса. Covid 19 data center не отвечает.");
+                        Console.WriteLine($"{DateTime.Now.ToLongTimeString()} | Bot | {chatID}: Ошибка запроса. Covid 19 data center не отвечает. | Text");
+                    }
                     break;
 
 
@@ -165,7 +160,7 @@ namespace Bot_hw
 
 
         /// <summary>
-        /// Загрузка файла из телеграмм чата
+        /// Загружает файл из телеграмм чата
         /// </summary>
         /// <param name="fileId">ID файла</param>
         /// <param name="path">путь для сохранения на компьютере</param>
@@ -187,15 +182,15 @@ namespace Bot_hw
             }
         }
         /// <summary>
-        /// Загрузка файла фотографии из телеграмм чата
+        /// Загружает фото из телеграмм чата
         /// </summary>
         /// <param name="path">путь для сохранения на компьютере</param>
-        /// <param name="chatId">ID файла</param>
+        /// <param name="chatId">ID чата</param>
         static async void SendPhoto (string path, long chatId)
         {
             try
             {
-                using (FileStream fs = System.IO.File.OpenRead(path))
+                using (FileStream fs = File.OpenRead(path))
                 {
                     InputOnlineFile inputOnlineFile = new InputOnlineFile(fs, path);
                     await bot.SendPhotoAsync(chatId, inputOnlineFile);
@@ -203,12 +198,12 @@ namespace Bot_hw
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Ошибка отправки файла: " + ex.Message);
+                Console.WriteLine("Ошибка загрузки файла: " + ex.Message);
             }
 
         }
         /// <summary>
-        /// Отправка файла по запросу в телеграмм чат
+        /// Отправляет файл в телеграмм чат
         /// </summary>
         /// <param name="path">путь к файлу на компьютере</param>
         /// <param name="chatId">ID чата</param>
@@ -216,7 +211,7 @@ namespace Bot_hw
         {
             try
             {
-                using (FileStream fs = System.IO.File.OpenRead(path))
+                using (FileStream fs = File.OpenRead(path))
                 {
                     InputOnlineFile inputOnlineFile = new InputOnlineFile(fs, path);
                     await bot.SendDocumentAsync(chatId, inputOnlineFile);
@@ -224,7 +219,7 @@ namespace Bot_hw
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Ошибка отправки файла: " + ex.Message);
+                Console.WriteLine("Ошибка чтения/отправки файла: " + ex.Message);
             }
            
         }
